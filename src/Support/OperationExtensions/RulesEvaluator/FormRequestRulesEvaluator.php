@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class FormRequestRulesEvaluator implements RulesEvaluator
 {
+    private array $messages = [];
     public function __construct(
         private ClassReflector $classReflector,
         private string $method,
@@ -32,6 +33,15 @@ class FormRequestRulesEvaluator implements RulesEvaluator
             $rules = $request->rules();
         }
 
+        if (method_exists($request, 'messages')) {
+            $this->messages = $request->messages();
+        }
+
         return $rules;
+    }
+
+    public function getMessages(): array
+    {
+        return $this->messages;
     }
 }

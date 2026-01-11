@@ -10,6 +10,7 @@ use PhpParser\PrettyPrinter;
 
 class ComposedFormRequestRulesEvaluator implements RulesEvaluator
 {
+    private array $messages = [];
     public function __construct(
         private PrettyPrinter $printer,
         private ClassReflector $classReflector,
@@ -26,18 +27,31 @@ class ComposedFormRequestRulesEvaluator implements RulesEvaluator
         )?->expr ?? null;
 
         $evaluators = [
-            new FormRequestRulesEvaluator($this->classReflector, $this->method),
+            $formRequestEvaluator = new FormRequestRulesEvaluator($this->classReflector, $this->method),
             new NodeRulesEvaluator($this->printer, $rulesMethodNode, $returnNode, $this->method, $this->classReflector->className),
         ];
 
         foreach ($evaluators as $evaluator) {
             try {
-                return $evaluator->handle();
+                $rules = $evaluator->handle();
+                
+                // NEW: If it's FormRequestRulesEvaluator, capture messages
+                if ($evaluator instanceof FormRequestRulesEvaluator) {
+                    $this->messages = $evaluator->getMessages();
+                }
+                
+                return $rules;
             } catch (\Throwable $e) {
                 // @todo communicate error
             }
         }
 
         return [];
+    }
+
+    // NEW: Getter for messages
+    public function getMessages(): array
+    {
+        return $this->messages;
     }
 }

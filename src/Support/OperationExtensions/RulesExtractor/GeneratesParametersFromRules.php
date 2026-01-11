@@ -12,10 +12,11 @@ trait GeneratesParametersFromRules
     /**
      * @param  array<string, RuleSet>  $rules
      * @param  Node[]|RulesDocumentationRetriever  $rulesDocsRetriever
+     * @param  array<string, string>  $messages
      * @return Parameter[]
      */
-    private function makeParameters($rules, TypeTransformer $typeTransformer, array|RulesDocumentationRetriever $rulesDocsRetriever = [], string $in = 'query'): array
+    private function makeParameters($rules, TypeTransformer $typeTransformer, array|RulesDocumentationRetriever $rulesDocsRetriever = [], string $in = 'query', array $messages = []): array
     {
-        return (new RulesToParameters($rules, $rulesDocsRetriever, $typeTransformer, $in))->mergeDotNotatedKeys(false)->handle();
+        return (new RulesToParameters($rules, $rulesDocsRetriever, $typeTransformer, $in, $messages))->mergeDotNotatedKeys(false)->handle();
     }
 }

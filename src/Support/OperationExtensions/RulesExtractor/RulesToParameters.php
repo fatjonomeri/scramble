@@ -35,6 +35,7 @@ class RulesToParameters
         array|RulesDocumentationRetriever $validationNodesResults,
         private TypeTransformer $openApiTransformer,
         private string $in = 'query',
+        private array $messages = [], // NEW: Add messages parameter
     ) {
         // This is for backward compatibility
         $this->rulesDocs = is_array($validationNodesResults)
@@ -118,6 +119,7 @@ class RulesToParameters
             $this->mergeDotNotatedKeys,
             $this->rulesDocs,
             $this->in,
+            $this->messages, // NEW: Pass messages
         ))->handle($schemaBag);
     }
 
@@ -136,4 +138,6 @@ class RulesToParameters
             $this->openApiTransformer->context->config->ruleTransformers,
         );
     }
+
+
 }

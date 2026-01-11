@@ -87,9 +87,14 @@ class FormRequestParametersExtractor implements ParameterExtractor
             ? null
             : $phpDocReflector->getSchemaName($requestClassName);
 
+        // NEW: Create evaluator and extract both rules and messages
+        $rulesEvaluator = new ComposedFormRequestRulesEvaluator($this->printer, $classReflector, $routeInfo->method);
+        $rules = $rulesEvaluator->handle();
+        $messages = $rulesEvaluator->getMessages();
+
         return new ParametersExtractionResult(
             parameters: $this->makeParameters(
-                rules: (new ComposedFormRequestRulesEvaluator($this->printer, $classReflector, $routeInfo->method))->handle(),
+                rules: $rules,
                 typeTransformer: $this->openApiTransformer,
                 rulesDocsRetriever: new TypeBasedRulesDocumentationRetriever(
                     $routeInfo->getScope(),
@@ -98,9 +103,11 @@ class FormRequestParametersExtractor implements ParameterExtractor
                 in: in_array(mb_strtolower($routeInfo->method), RequestBodyExtension::HTTP_METHODS_WITHOUT_REQUEST_BODY)
                     ? 'query'
                     : 'body',
+                messages: $messages, // NEW: Pass messages
             ),
             schemaName: $schemaName,
             description: $phpDocReflector->getDescription(),
+            messages: $messages, // NEW: Store in result
         );
     }
 }
